@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17191e">
+<title>Play TV | Guia de Futebol</title>
+<style>
+:root{--bg:#0c0e12;--panel:#171a20;--panel2:#20242c;--line:#303540;--red:#e32932;--text:#f5f6f8;--muted:#a9afba;--green:#42c987}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#20232b 0,#0c0e12 55%);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1050px;margin:auto;padding:22px 16px 50px}.top{display:flex;align-items:center;gap:13px;margin-bottom:26px}.logo{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#f13b43,#a40f1a);display:grid;place-items:center;font-size:25px;box-shadow:0 8px 28px #e3293233}.brand{font-weight:900;letter-spacing:1.3px;font-size:22px}.sub{color:var(--muted);font-size:11px;letter-spacing:2px}.pill{margin-left:auto;border:1px solid #414650;border-radius:999px;padding:7px 11px;color:#d9dde4;font-size:12px}
+.hero{padding:28px 0 22px}.eyebrow{color:#ff6269;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}.hero h1{font-size:clamp(29px,5vw,46px);line-height:1.08;letter-spacing:-1.3px;margin:9px 0 12px}.hero p{color:var(--muted);max-width:650px;margin:0}
+.filters{display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:10px;background:#15181e;border:1px solid var(--line);padding:12px;border-radius:18px;margin:22px 0 20px}
+input,select,button{font:inherit}input,select{min-width:0;width:100%;background:#0f1116;color:var(--text);border:1px solid #363b46;border-radius:11px;padding:12px;outline:none}input:focus,select:focus{border-color:#e32932}button{border:0;border-radius:11px;padding:12px 16px;background:var(--red);color:white;font-weight:800;cursor:pointer}button:hover{filter:brightness(1.1)}
+.summary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:15px 0}.summary h2{font-size:20px;margin:0}.summary small{color:var(--muted)}
+.notice{border:1px solid #66502c;background:#2a2114;color:#f4d7a1;border-radius:12px;padding:12px 14px;font-size:12px;margin:0 0 17px}
+.games{display:grid;gap:12px}.game{background:linear-gradient(120deg,#1a1d24,#14161b);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;grid-template-columns:95px 1fr minmax(150px,.7fr);gap:15px;align-items:center}.time{font-size:21px;font-weight:850}.date{color:var(--muted);font-size:11px}.league{color:#ff7379;font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:800}.teams{font-size:17px;font-weight:800;margin:4px 0}.vs{color:var(--muted);font-size:12px;font-weight:500;margin:0 5px}.channel{border-left:2px solid var(--red);padding-left:12px}.channel strong{display:block;font-size:13px}.channel span{font-size:12px;color:var(--muted)}.empty{display:none;text-align:center;padding:35px;color:var(--muted);border:1px dashed #3b404b;border-radius:16px}.footer{color:#7f8794;text-align:center;font-size:12px;margin-top:26px}.footer a{color:#e7e9ed}
+@media(max-width:700px){.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}.game{grid-template-columns:72px 1fr;gap:10px}.channel{grid-column:2;border-left:0;border-top:1px solid var(--line);padding:10px 0 0}.time{font-size:19px}.teams{font-size:15px}.pill{display:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="logo" aria-hidden="true">▶</div>
+    <div><div class="brand">PLAY TV</div><div class="sub">GUIA DE FUTEBOL</div></div>
+    <div class="pill">HORÁRIOS DE BRASÍLIA</div>
+  </header>
+  <section class="hero">
+    <div class="eyebrow">Seu guia esportivo</div>
+    <h1>O jogo começa<br>por aqui.</h1>
+    <p>Encontre partidas, campeonatos e informações sobre onde assistir, em um só lugar.</p>
+  </section>
+  <section class="filters" aria-label="Filtros de jogos">
+    <input id="search" type="search" placeholder="Buscar time ou campeonato…" aria-label="Buscar time ou campeonato">
+    <input id="date" type="date" aria-label="Data dos jogos">
+    <select id="channel" aria-label="Filtrar por canal"><option value="">Todos os canais</option></select>
+    <button id="clear" type="button">Limpar</button>
+  </section>
+  <div class="notice"><strong>Protótipo inicial:</strong> os jogos abaixo são exemplos demonstrativos, não uma agenda real. A próxima etapa é conectar uma fonte de dados e validar os direitos/condições de uso antes de publicar informações ao vivo.</div>
+  <div class="summary"><h2 id="heading">Jogos em destaque</h2><small id="count">3 exemplos</small></div>
+  <section class="games" id="games" aria-live="polite"></section>
+  <div class="empty" id="empty">Nenhum jogo corresponde aos filtros. Tente outra busca ou data.</div>
+  <footer class="footer">Play TV • Guia informativo de programação esportiva<br>As transmissões podem mudar. Confirme sempre com a emissora ou plataforma oficial.</footer>
+</main>
+<script>
+const demoGames = [
+ {date:"2026-10-11",time:"16:00",league:"Campeonato Brasileiro",home:"Time mandante",away:"Time visitante",channels:["Canal a confirmar"],status:"Exemplo"},
+ {date:"2026-10-11",time:"18:30",league:"Campeonato internacional",home:"Clube A",away:"Clube B",channels:["Streaming a confirmar"],status:"Exemplo"},
+ {date:"2026-10-12",time:"20:00",league:"Competição continental",home:"Equipe local",away:"Equipe visitante",channels:["Canal a confirmar"],status:"Exemplo"}
+];
+const $=id=>document.getElementById(id);
+const dateNow="2026-10-11";
+$("date").value=dateNow;
+function render(){
+ const q=$("search").value.trim().toLocaleLowerCase("pt-BR"),d=$("date").value,c=$("channel").value;
+ const list=demoGames.filter(g=>(!d||g.date===d)&&(!q||(g.home+" "+g.away+" "+g.league).toLocaleLowerCase("pt-BR").includes(q))&&(!c||g.channels.includes(c)));
+ $("heading").textContent=d?("Jogos de "+d.split("-").reverse().join("/")):"Todos os jogos";
+ $("count").textContent=list.length+" exemplo(s)";
+ $("games").innerHTML=list.map(g=>`<article class="game"><div><div class="time">${g.time}</div><div class="date">${g.date.split("-").reverse().join("/")}</div></div><div><div class="league">${g.league}</div><div class="teams">${g.home}<span class="vs">×</span>${g.away}</div></div><div class="channel"><strong>📺 ${g.channels.join(", ")}</strong><span>Transmissão não confirmada • demonstração</span></div></article>`).join("");
+ $("empty").style.display=list.length?"none":"block";
+}
+const channels=[...new Set(demoGames.flatMap(g=>g.channels))];
+channels.forEach(ch=>{const o=document.createElement("option");o.value=ch;o.textContent=ch;$("channel").appendChild(o)});
+["search","date","channel"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",render));
+$("clear").addEventListener("click",()=>{$("search").value="";$("date").value="";$("channel").value="";render()});
+render();
+</script>
+</body>
+</html>
