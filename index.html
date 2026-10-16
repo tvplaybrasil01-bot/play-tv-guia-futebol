@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050b20"><meta name="description" content="Agenda de futebol PLAY TV: jogos, placares e informações de transmissão.">
+<title>PLAY TV | Guia de Futebol</title>
+<style>
+:root{--bg:#050816;--panel:#0b1530;--blue:#00baff;--orange:#ff9d00;--muted:#9eaccb;--line:#173a66}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#09275b 0,#050816 48%,#02040b 100%);color:#f7faff;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1050px;margin:auto;padding:18px}.hero{border:1px solid #087fc7;border-radius:22px;padding:24px;background:linear-gradient(120deg,#07142d,#092a62 58%,#11142b);box-shadow:0 0 28px #007dff24;position:relative;overflow:hidden}
+.brand{display:flex;align-items:center;gap:14px}.logo{width:66px;height:66px;display:grid;place-items:center;border-radius:18px;border:2px solid var(--blue);background:#061329;font-size:35px;box-shadow:0 0 18px #00baff55}.brand small{color:#8bdfff;font-weight:800;letter-spacing:3px}.brand h1{font-size:clamp(26px,5vw,48px);line-height:1;margin:5px 0}.brand h1 span{color:var(--orange)}.sub{color:#d2e8ff;margin:14px 0 0}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}.toolbar button,.toolbar input{background:#0b1730;color:white;border:1px solid #24527d;border-radius:12px;padding:11px 14px;font:inherit}.toolbar button{cursor:pointer;font-weight:750}.toolbar button.active,.toolbar button:hover{background:var(--blue);color:#001020;border-color:var(--blue)}.toolbar input{flex:1;min-width:170px}
+.status{color:var(--muted);font-size:13px;margin:10px 2px}.section{margin-top:24px}.section h2{font-size:18px;margin:0 0 12px;display:flex;align-items:center;gap:9px}.section h2:before{content:"";width:5px;height:22px;border-radius:4px;background:var(--orange)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:12px}.match{border:1px solid var(--line);border-radius:16px;background:linear-gradient(135deg,#0b1530,#060b19);padding:15px;min-width:0}.meta{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px;margin-bottom:12px}.league{color:#7fdbff;font-weight:800}.teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;font-weight:800}.team:last-child{text-align:right}.vs{color:var(--orange);font-size:12px}.time{color:#fff;background:#a95e00;padding:4px 8px;border-radius:7px;font-weight:850}.channel{border-top:1px solid #193354;margin-top:13px;padding-top:10px;color:#d5e2f8;font-size:13px}.channel b{color:#ffc45c}.empty,.loading{padding:26px;text-align:center;color:var(--muted);border:1px dashed #285078;border-radius:16px}.foot{margin:28px 0 8px;text-align:center;color:#9eb5d8;font-size:13px}.foot strong{color:#68d8ff}.foot .wa{display:inline-block;margin-top:10px;color:#071326;background:var(--orange);padding:10px 15px;border-radius:12px;font-weight:900;text-decoration:none}
+@media(max-width:520px){.wrap{padding:11px}.hero{padding:17px}.logo{width:54px;height:54px;font-size:28px}.toolbar button{flex:1}.teams{font-size:14px}.match{padding:13px}}
+</style></head>
+<body><main class="wrap">
+<header class="hero"><div class="brand"><div class="logo">▶</div><div><small>O SISTEMA DE TV DO FUTURO</small><h1>PLAY <span>TV</span></h1><div style="font-weight:900;letter-spacing:1px">GUIA DE FUTEBOL</div></div></div><p class="sub">Jogos, horários e informações de transmissão em um só lugar.</p></header>
+<nav class="toolbar" aria-label="Filtros de data"><button class="active" data-day="0">Hoje</button><button data-day="1">Amanhã</button><button data-day="2">+2 dias</button><button data-day="3">+3 dias</button><button data-day="7">Próximos 7 dias</button><input id="search" placeholder="Buscar time ou campeonato…" aria-label="Buscar time ou campeonato"><button id="reload">↻ Atualizar</button></nav>
+<div id="status" class="status">Carregando programação…</div><div id="content"><div class="loading">Buscando jogos disponíveis…</div></div>
+<footer class="foot"><strong>PLAY TV</strong> · Agenda esportiva informativa.<br>Horários no fuso de Brasília quando disponível. Canais e plataformas podem mudar; confirme na programação oficial.<br><a class="wa" href="https://wa.me/5531993177883" target="_blank" rel="noopener">WHATSAPP PLAY TV</a></footer>
+</main>
+<script>
+const leagues=[
+['eng.1','Premier League'],['esp.1','La Liga'],['ita.1','Serie A'],['ger.1','Bundesliga'],['fra.1','Ligue 1'],
+['bra.1','Brasileirão Série A'],['bra.2','Brasileirão Série B'],['arg.1','Liga Argentina'],['uefa.champions','Champions League'],
+['uefa.europa','Europa League'],['conmebol.libertadores','Libertadores'],['conmebol.sudamericana','Sul-Americana'],
+['ned.1','Eredivisie'],['por.1','Liga Portugal'],['usa.1','MLS']
+];
+let all=[],selectedDay=0;
+const $=s=>document.querySelector(s);
+function dateKey(d){return new Date(d).toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'})}
+function dateLabel(d){return new Date(d).toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',timeZone:'America/Sao_Paulo'})}
+function timeLabel(d){return new Date(d).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'})}
+async function load(){
+ $('#status').textContent='Atualizando jogos das principais ligas…';$('#content').innerHTML='<div class="loading">Buscando programação…</div>';
+ const now=new Date(),from=new Date(now);from.setDate(from.getDate()-1);const to=new Date(now);to.setDate(to.getDate()+7);
+ const fmt=d=>d.toISOString().slice(0,10).replaceAll('-','');
+ const jobs=leagues.map(async([id,name])=>{
+  try{const u='https://site.api.espn.com/apis/site/v2/sports/soccer/'+id+'/scoreboard?dates='+fmt(from)+'-'+fmt(to);const r=await fetch(u);if(!r.ok)throw 0;const j=await r.json();
+   return (j.events||[]).map(e=>({id:e.id,league:name,name:e.name,date:e.date,status:e.status?.type?.detail||e.status?.type?.description||'Programado',state:e.status?.type?.state,home:e.competitions?.[0]?.competitors?.find(c=>c.homeAway==='home')?.team?.displayName||'Mandante',away:e.competitions?.[0]?.competitors?.find(c=>c.homeAway==='away')?.team?.displayName||'Visitante',homeScore:e.competitions?.[0]?.competitors?.find(c=>c.homeAway==='home')?.score,awayScore:e.competitions?.[0]?.competitors?.find(c=>c.homeAway==='away')?.score,broadcasts:[...(e.competitions?.[0]?.broadcasts||[]).map(b=>b.names?.join(', ')).filter(Boolean)]}));
+  }catch(e){return []}
+ });
+ all=(await Promise.all(jobs)).flat().filter(e=>e.date).sort((a,b)=>new Date(a.date)-new Date(b.date));render();
+}
+function render(){
+ const q=$('#search').value.trim().toLowerCase(),today=new Date();const start=new Date(today);start.setHours(0,0,0,0);
+ const begin=new Date(start.getTime()+selectedDay*86400000),end=new Date(start.getTime()+(selectedDay===7?7:selectedDay+1)*86400000);
+ const list=all.filter(e=>{const d=new Date(e.date);return (selectedDay===7?d>=start&&d<end:d>=begin&&d<end)&&(!q||(e.home+' '+e.away+' '+e.league).toLowerCase().includes(q))});
+ $('#status').textContent=all.length?all.length+' jogos carregados · atualização feita em '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'Não foi possível carregar os jogos agora. Tente atualizar.';
+ if(!list.length){$('#content').innerHTML='<div class="empty">Nenhum jogo encontrado para este filtro. Tente outra data ou atualize a página.</div>';return}
+ const groups={};for(const e of list){const key=dateKey(e.date);(groups[key]??=[]).push(e)}
+ $('#content').innerHTML=Object.values(groups).map(g=>'<section class="section"><h2>'+dateLabel(g[0].date)+'</h2><div class="grid">'+g.map(e=>{const live=e.state==='in';const score=e.homeScore!=null&&e.awayScore!=null;const tv=e.broadcasts.length?e.broadcasts.join(' · '):'Transmissão não informada pela fonte';return '<article class="match"><div class="meta"><span class="league">'+e.league+'</span><span class="time">'+(live?'🔴 AO VIVO':timeLabel(e.date))+'</span></div><div class="teams"><div class="team">'+e.home+'</div><div class="vs">'+(score?e.homeScore+' × '+e.awayScore:'VS')+'</div><div class="team">'+e.away+'</div></div><div class="channel"><b>📺 Onde assistir:</b> '+tv+'<br><span style="color:#8da2c5">'+e.status+'</span></div></article>'}).join('')+'</div></section>').join('')
+}
+document.querySelectorAll('[data-day]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-day]').forEach(x=>x.classList.remove('active'));b.classList.add('active');selectedDay=Number(b.dataset.day);render()}));
+$('#search').addEventListener('input',render);$('#reload').addEventListener('click',load);load();setInterval(load,5*60*1000);
+</script></body></html>
